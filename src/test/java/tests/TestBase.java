@@ -27,19 +27,22 @@ public class TestBase {
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
         Configuration.timeout = 10000;
 
-        Configuration.pageLoadStrategy = "eager";
+        Configuration.pageLoadStrategy = "none";
 
         String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
 
         ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.setPageLoadStrategy(PageLoadStrategy.EAGER); // Не ждём загрузки тяжелых ресурсов
+        chromeOptions.setPageLoadStrategy(PageLoadStrategy.NONE);
+
+        chromeOptions.addArguments("--headless=new");
         chromeOptions.addArguments("--no-sandbox");
         chromeOptions.addArguments("--disable-dev-shm-usage");
+        chromeOptions.addArguments("--disable-gpu");
         chromeOptions.addArguments("--disable-infobars");
         chromeOptions.addArguments("--disable-popup-blocking");
         chromeOptions.addArguments("--disable-notifications");
         chromeOptions.addArguments("--lang=ru-RU");
-        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
 
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);

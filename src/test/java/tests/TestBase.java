@@ -21,7 +21,6 @@ public class TestBase {
         Configuration.baseUrl = "https://kaspi.kz";
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
         Configuration.browser = System.getProperty("browser", "chrome");
-        Configuration.pageLoadStrategy = "eager";
 
         String remoteUrl = System.getProperty("remoteUrl", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
         if (!remoteUrl.isEmpty()) {

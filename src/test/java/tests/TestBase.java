@@ -24,8 +24,14 @@ public class TestBase {
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
         Configuration.timeout = 15000;
 
+        // ВАЖНО: Не ждем полной загрузки тяжелых ресурсов/баннеров Kaspi
+        Configuration.pageLoadStrategy = "eager";
+
         org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
         options.addArguments("--disable-blink-features=AutomationControlled");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
         options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
 
         String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
@@ -42,12 +48,11 @@ public class TestBase {
             Configuration.browserCapabilities = capabilities;
         }
 
-        // Логирование параметров конфигурации в консоль
         System.out.println("URL: " + Configuration.baseUrl);
         System.out.println("Browser: " + Configuration.browser);
         System.out.println("Browser size: " + Configuration.browserSize);
         System.out.println("Remote: " + Configuration.remote);
-    } // <-- Фигурная скобка метода должна быть ЗДЕСЬ!
+    }
 
     @BeforeEach
     public void setUp() {

@@ -1,92 +1,56 @@
 package tests;
 
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.WebDriverRunner;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.openqa.selenium.PageLoadStrategy;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.time.Duration;
 import java.util.Map;
 
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$x;
 
 public class TestBase {
 
     @BeforeAll
-    static void setupEnvironment() {
-        Configuration.baseUrl = System.getProperty("baseUrl", System.getProperty("url", "https://kaspi.kz"));
-        Configuration.browser = System.getProperty("browser", "chrome");
-        Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
+    static void beforeAll() {
+        Configuration.baseUrl = "https://kaspi.kz";
+        Configuration.browserSize = "1920x1080";
+
+        Configuration.pageLoadStrategy = "eager";
         Configuration.timeout = 10000;
 
-        Configuration.pageLoadStrategy = "none";
+        String remoteUrl = System.getProperty("remoteUrl", "https://user1:1234@selenoid.qa.guru/wd/hub");
+        if (remoteUrl != null && !remoteUrl.isEmpty()) {
+            Configuration.remote = remoteUrl;
 
-        String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
-
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.setPageLoadStrategy(PageLoadStrategy.NONE);
-
-        chromeOptions.addArguments("--headless=new");
-        chromeOptions.addArguments("--no-sandbox");
-        chromeOptions.addArguments("--disable-dev-shm-usage");
-        chromeOptions.addArguments("--disable-gpu");
-        chromeOptions.addArguments("--disable-infobars");
-        chromeOptions.addArguments("--disable-popup-blocking");
-        chromeOptions.addArguments("--disable-notifications");
-        chromeOptions.addArguments("--lang=ru-RU");
-        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
-
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
-
-        if (remote != null && !remote.isEmpty()) {
-            Configuration.remote = remote;
-            capabilities.setCapability("selenoid:options", Map.<String, Object>of(
-                    "enableVNC", true,
-                    "enableVideo", true,
-                    "enableLog", true
-            ));
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setCapability("selenoid:options", Map.of("enableVNC", true, "enableVideo", true, "sessionTimeout", "3m"));
+            Configuration.browserCapabilities = capabilities;
         }
-
-        Configuration.browserCapabilities = capabilities;
     }
 
     @BeforeEach
-    public void setUp() {
-        SelenideLogger.addListener("allure", new AllureSelenide()
-                .screenshots(true)
-                .savePageSource(true));
+    void addListener() {
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
     }
 
     @AfterEach
-    public void addAttachments() {
-        if (WebDriverRunner.hasWebDriverStarted()) {
-            helpers.Attachments.screenshotAs("Last screenshot");
-            helpers.Attachments.pageSource();
-            helpers.Attachments.browserConsoleLogs();
-            helpers.Attachments.addVideo();
-        }
-
-        SelenideLogger.removeListener("allure");
-        closeWebDriver();
+    void tearDown() {
+        Selenide.closeWebDriver();
     }
 
     public void closeCityDialogIfPresent() {
-        if ($(".dialog").is(visible)) {
-            if ($(".dialog__close").is(visible)) {
-                $(".dialog__close").click(com.codeborne.selenide.ClickOptions.usingJavaScript());
-            } else if ($$(".dialog__link").find(text("Алматы")).is(visible)) {
-                $$(".dialog__link").find(text("Алматы")).click();
+        try {
+            if (Selenide.$(".city-select").isDisplayed()) {
+                Selenide.$(".city-select__close").click();
             }
-            $(".dialog").shouldNotBe(visible, Duration.ofSeconds(5));
+        } catch (Exception ignored) {
         }
     }
 

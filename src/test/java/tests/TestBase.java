@@ -22,9 +22,13 @@ public class TestBase {
         Configuration.baseUrl = System.getProperty("baseUrl", "https://kaspi.kz");
         Configuration.browser = System.getProperty("browser", "chrome");
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
-        Configuration.timeout = 10000;
+        Configuration.timeout = 15000;
 
-        String remote = System.getProperty("remote");
+        org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+
+        String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
         if (remote != null && !remote.isEmpty()) {
             Configuration.remote = remote;
 
@@ -34,14 +38,16 @@ public class TestBase {
                     "enableVideo", true,
                     "enableLog", true
             ));
+            capabilities.setCapability(org.openqa.selenium.chrome.ChromeOptions.CAPABILITY, options);
             Configuration.browserCapabilities = capabilities;
         }
 
+        // Логирование параметров конфигурации в консоль
         System.out.println("URL: " + Configuration.baseUrl);
         System.out.println("Browser: " + Configuration.browser);
         System.out.println("Browser size: " + Configuration.browserSize);
         System.out.println("Remote: " + Configuration.remote);
-    }
+    } // <-- Фигурная скобка метода должна быть ЗДЕСЬ!
 
     @BeforeEach
     public void setUp() {

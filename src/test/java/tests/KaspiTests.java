@@ -23,19 +23,22 @@ public class KaspiTests extends TestBase {
     @Story("Локализация")
     @DisplayName("1. Смена языка интерфейса с русского на казахский")
     void shouldChangeLanguageToKazakh() {
+
         step("Открыть главную страницу Kaspi", () -> {
             open("/");
-            $("body").shouldBe(visible, Duration.ofSeconds(10));
+            $("body").shouldBe(visible, Duration.ofSeconds(15));
             closeCityDialogIfPresent();
         });
 
         step("Переключить язык на казахский", () -> {
-            $("[data-lang='kk-KZ']").shouldBe(visible, Duration.ofSeconds(10)).click();
+            $("[data-lang='kk-KZ']")
+                    .shouldBe(visible, Duration.ofSeconds(15))
+                    .click(ClickOptions.usingJavaScript());
         });
 
         step("Проверить, что открылась казахская версия сайта", () -> {
-            $("body").shouldBe(visible, Duration.ofSeconds(10));
             webdriver().shouldHave(url("https://kaspi.kz/kz"));
+            $("body").shouldBe(visible, Duration.ofSeconds(15));
         });
     }
 

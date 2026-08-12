@@ -19,32 +19,20 @@ public class TestBase {
 
     @BeforeAll
     static void setupEnvironment() {
-        Configuration.baseUrl = System.getProperty("baseUrl", "https://kaspi.kz");
+        Configuration.baseUrl = System.getProperty("baseUrl", System.getProperty("url", "https://kaspi.kz"));
         Configuration.browser = System.getProperty("browser", "chrome");
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
-        Configuration.timeout = 15000;
+        Configuration.timeout = 10000;
 
-        // ВАЖНО: Не ждем полной загрузки тяжелых ресурсов/баннеров Kaspi
-        Configuration.pageLoadStrategy = "eager";
-
-        org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
-        options.addArguments("--disable-blink-features=AutomationControlled");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
-
-        String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
+        String remote = System.getProperty("remote");
         if (remote != null && !remote.isEmpty()) {
             Configuration.remote = remote;
-
             DesiredCapabilities capabilities = new DesiredCapabilities();
             capabilities.setCapability("selenoid:options", Map.<String, Object>of(
                     "enableVNC", true,
                     "enableVideo", true,
                     "enableLog", true
             ));
-            capabilities.setCapability(org.openqa.selenium.chrome.ChromeOptions.CAPABILITY, options);
             Configuration.browserCapabilities = capabilities;
         }
 

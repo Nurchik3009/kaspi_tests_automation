@@ -1,6 +1,7 @@
 package tests;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.AfterEach;
@@ -24,7 +25,7 @@ public class TestBase {
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
         Configuration.timeout = 10000;
 
-        String remote = System.getProperty("remote");
+        String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
         if (remote != null && !remote.isEmpty()) {
             Configuration.remote = remote;
             DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -51,10 +52,12 @@ public class TestBase {
 
     @AfterEach
     public void addAttachments() {
-        helpers.Attachments.screenshotAs("Last screenshot");
-        helpers.Attachments.pageSource();
-        helpers.Attachments.browserConsoleLogs();
-        helpers.Attachments.addVideo();
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            helpers.Attachments.screenshotAs("Last screenshot");
+            helpers.Attachments.pageSource();
+            helpers.Attachments.browserConsoleLogs();
+            helpers.Attachments.addVideo();
+        }
 
         SelenideLogger.removeListener("allure");
         closeWebDriver();

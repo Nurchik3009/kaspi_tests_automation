@@ -1,71 +1,79 @@
 plugins {
     id 'java'
-    id 'io.qameta.allure' version '4.1.0'
+    id 'io.qameta.allure' version '3.0.0'
 }
 
-group = 'org.example'
+group = 'kz.kaspi'
 version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'com.codeborne:selenide:7.9.4'
-    testImplementation 'com.github.javafaker:javafaker:1.0.2'
-    testImplementation 'io.qameta.allure:allure-junit5:2.33.0'
-    testImplementation 'io.qameta.allure:allure-selenide:2.33.0'
+def allureVersion = '2.25.0'
+def selenideVersion = '7.2.1'
+def junitVersion = '5.10.2'
+def slf4jVersion = '2.0.12'
 
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.slf4j:slf4j-simple:2.0.9'
-}
-
-allure {
-    version = "2.33.0"
-    adapter {
-        frameworks {
-            junit5 {
-                enabled = true
-            }
-        }
-    }
-}
-
-/*
 allure {
     report {
-        version.set("2.24.0")
+        version.set(allureVersion)
     }
+
     adapter {
         aspectjWeaver.set(true)
+
         frameworks {
             junit5 {
-                adapterVersion.set("2.24.0")
+                adapterVersion.set(allureVersion)
             }
         }
     }
-}*/
+}
 
-compileTestJava {
-    options.encoding = 'UTF-8'
+dependencies {
+
+    testImplementation "com.codeborne:selenide:${selenideVersion}"
+
+    testImplementation "io.qameta.allure:allure-selenide:${allureVersion}"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+
+    testImplementation "org.slf4j:slf4j-simple:${slf4jVersion}"
 }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-tasks.withType(Test).configureEach {
-    useJUnitPlatform()
-    maxParallelForks = 1
+test {
 
+    useJUnitPlatform()
+
+    /*
+     * Передаём системные свойства в тесты.
+     *
+     * Например:
+     *
+     * ./gradlew test -DremoteUrl=https://selenoid.autotests.cloud/wd/hub
+     *
+     * Тогда в Java будет доступно:
+     *
+     * System.getProperty("remoteUrl")
+     */
     systemProperties(System.getProperties())
 
     testLogging {
         lifecycle {
-            events "started", "skipped", "failed", "standard_error", "standard_out"
-            exceptionFormat "short"
+            events(
+                    "started",
+                    "skipped",
+                    "failed",
+                    "standard_error",
+                    "standard_out"
+            )
+
+            exceptionFormat = "short"
         }
     }
 }

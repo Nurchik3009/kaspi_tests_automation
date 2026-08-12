@@ -22,15 +22,18 @@ public class TestBase {
         Configuration.baseUrl = "https://kaspi.kz";
         Configuration.browserSize = "1920x1080";
 
-        Configuration.pageLoadStrategy = "eager";
-        Configuration.timeout = 10000;
+        Configuration.pageLoadStrategy = "normal";
+        Configuration.timeout = 15000;
 
         String remoteUrl = System.getProperty("remoteUrl", "https://user1:1234@selenoid.qa.guru/wd/hub");
+
         if (remoteUrl != null && !remoteUrl.isEmpty()) {
             Configuration.remote = remoteUrl;
 
             DesiredCapabilities capabilities = new DesiredCapabilities();
+
             capabilities.setCapability("selenoid:options", Map.of("enableVNC", true, "enableVideo", true, "sessionTimeout", "3m"));
+
             Configuration.browserCapabilities = capabilities;
         }
     }

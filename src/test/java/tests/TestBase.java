@@ -7,6 +7,7 @@ import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.time.Duration;
@@ -23,24 +24,31 @@ public class TestBase {
         Configuration.baseUrl = System.getProperty("baseUrl", System.getProperty("url", "https://kaspi.kz"));
         Configuration.browser = System.getProperty("browser", "chrome");
         Configuration.browserSize = System.getProperty("browserSize", "1920x1080");
-        Configuration.timeout = 10000;
+        Configuration.timeout = 15000; // Увеличим таймаут для удаленного сервера
 
         String remote = System.getProperty("remote", "https://user1:1234@selenoid.autotests.cloud/wd/hub");
+
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--no-sandbox");
+        chromeOptions.addArguments("--disable-infobars");
+        chromeOptions.addArguments("--disable-popup-blocking");
+        chromeOptions.addArguments("--disable-notifications");
+        chromeOptions.addArguments("--lang=ru-RU");
+        chromeOptions.addArguments("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36");
+
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+
         if (remote != null && !remote.isEmpty()) {
             Configuration.remote = remote;
-            DesiredCapabilities capabilities = new DesiredCapabilities();
             capabilities.setCapability("selenoid:options", Map.<String, Object>of(
                     "enableVNC", true,
                     "enableVideo", true,
                     "enableLog", true
             ));
-            Configuration.browserCapabilities = capabilities;
         }
 
-        System.out.println("URL: " + Configuration.baseUrl);
-        System.out.println("Browser: " + Configuration.browser);
-        System.out.println("Browser size: " + Configuration.browserSize);
-        System.out.println("Remote: " + Configuration.remote);
+        Configuration.browserCapabilities = capabilities;
     }
 
     @BeforeEach
